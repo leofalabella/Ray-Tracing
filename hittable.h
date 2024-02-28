@@ -2,11 +2,21 @@
 #define HITTABLE_H
 
 #include "ray.h"
+<<<<<<< HEAD
+#include "general.h"
+
+class material;
+=======
+>>>>>>> 771f2eae743b5c1a914032651343ce16f1e72823
 
 class hit_record {
     public:
         point3 p;
         vec3 normal;
+<<<<<<< HEAD
+        shared_ptr<material> mat;
+=======
+>>>>>>> 771f2eae743b5c1a914032651343ce16f1e72823
         double t;
         bool front_face;
 
