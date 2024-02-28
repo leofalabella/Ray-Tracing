@@ -1,0 +1,55 @@
+[33mcommit 26a0cca73bb356c4b6dc467dba1b05b8f8193de4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32minit[m[33m)[m
+Merge: 8de5b7f 771f2ea
+Author: Leonardo Falabella <leo.falabella01@gmail.com>
+Date:   Wed Feb 28 09:27:41 2024 +0100
+
+    Merge branch 'main' of https://github.com/leofalabella/Ray-Tracing into init
+
+[33mcommit 8de5b7f6092e330fb60ae6dd6e433a509a340031[m
+Author: Leonardo Falabella <leo.falabella01@gmail.com>
+Date:   Wed Feb 28 09:23:59 2024 +0100
+
+    Trying to fix bug
+
+[33mcommit 771f2eae743b5c1a914032651343ce16f1e72823[m
+Author: leofalabella <152606337+leofalabella@users.noreply.github.com>
+Date:   Mon Feb 26 16:47:48 2024 -0300
+
+    Add files via upload
+
+[33mcommit 742c1a124cf1c5c1d37c9a553654c4dc65688ec3[m
+Merge: eebb38b 342c1fb
+Author: Leonardo Falabella <leo.falabella01@gmail.com>
+Date:   Mon Feb 26 20:44:57 2024 +0100
+
+    Merge branch 'main' of https://github.com/leofalabella/Ray-Tracing into init
+
+[33mcommit eebb38bd12867704d557de4aa53964f96e317698[m
+Author: Leonardo Falabella <leo.falabella01@gmail.com>
+Date:   Mon Feb 26 20:42:12 2024 +0100
+
+    Sei la
+
+[33mcommit f9cc0991ad2902ddc12115d6776ad837543b4a2a[m
+Author: Leonardo Falabella <leo.falabella01@gmail.com>
+Date:   Mon Feb 26 20:38:27 2024 +0100
+
+    Combined commit
+
+[33mcommit 342c1fb7db42ab23c40ae67d4ccb33162d2ccc63[m
+Author: leofalabella <152606337+leofalabella@users.noreply.github.com>
+Date:   Mon Feb 19 09:57:00 2024 -0300
+
+    Add files via upload
+
+[33mcommit 5bbec6dc8b5a65cbc1b96174e90d4f1cbbdeb3e9[m
+Author: leofalabella <152606337+leofalabella@users.noreply.github.com>
+Date:   Mon Feb 19 09:27:18 2024 -0300
+
+    Initial commit
+
+[33mcommit 1f85830453e138c8ca648130d262eb6a248375fc[m[33m ([m[1;32mtrunk[m[33m, [m[1;32mmain[m[33m)[m
+Author: Leonardo Falabella <leo.falabella01@gmail.com>
+Date:   Mon Feb 19 13:25:05 2024 +0100
+
+    First commit
