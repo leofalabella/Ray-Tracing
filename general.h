@@ -3,16 +3,9 @@
 
 #include <cmath>
 #include <cstdlib>
-#include <iostream>
 #include <limits>
 #include <memory>
 
-
-// Common Headers
-
-#include "interval.h"
-#include "ray.h"
-#include "vec3.h"
 
 // Usings
 
@@ -40,5 +33,12 @@ inline double random_double(double min, double max){
     // Returns a random real in [min,max)
     return min + (max-min)*random_double();
 }
+
+
+// Common Headers
+
+#include "interval.h"
+#include "ray.h"
+#include "vec3.h"
 
 #endif
