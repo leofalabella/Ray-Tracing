@@ -26,7 +26,7 @@ class interval {
         static const interval empty, universe;
 };
 
-const static interval empty(+infinity, -infinity);
+const static interval empty   (+infinity, -infinity);
 const static interval universe(-infinity, +infinity);
 
 #endif

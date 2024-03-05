@@ -3,23 +3,10 @@
 
 #include <cmath>
 #include <cstdlib>
-<<<<<<< HEAD
-=======
-#include <iostream>
->>>>>>> 771f2eae743b5c1a914032651343ce16f1e72823
 #include <limits>
 #include <memory>
 
 
-<<<<<<< HEAD
-=======
-// Common Headers
-
-#include "interval.h"
-#include "ray.h"
-#include "vec3.h"
-
->>>>>>> 771f2eae743b5c1a914032651343ce16f1e72823
 // Usings
 
 using std::shared_ptr;
@@ -47,7 +34,6 @@ inline double random_double(double min, double max){
     return min + (max-min)*random_double();
 }
 
-<<<<<<< HEAD
 
 // Common Headers
 
@@ -55,6 +41,4 @@ inline double random_double(double min, double max){
 #include "ray.h"
 #include "vec3.h"
 
-=======
->>>>>>> 771f2eae743b5c1a914032651343ce16f1e72823
 #endif
