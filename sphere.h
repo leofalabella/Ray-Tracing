@@ -8,7 +8,12 @@
 class sphere : public hittable {
     public:
         sphere(point3 _center, double _radius, shared_ptr<material> _material)
-         : center(_center), radius(_radius), mat(_material) {}
+         : center(_center), radius(_radius), mat(_material)
+        {
+                auto rvec = vec3(_radius, _radius, _radius);
+                bbox = aabb(center - rvec, center + rvec);
+
+        }
 
         bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
             // Variables to solve quadratic equation
@@ -36,13 +41,15 @@ class sphere : public hittable {
             rec.mat = mat;
 
             return true;
-
         }
+
+        aabb bounding_box() const override { return bbox; }
 
     private:
         point3 center;
         double radius;
         shared_ptr<material> mat;
+        aabb bbox;
 };
 
 #endif
