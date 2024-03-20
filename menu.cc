@@ -5,6 +5,187 @@
 #include "hittable_list.h"
 #include "material.h"
 #include "sphere.h"
+#include "timer.h"
+#include <atomic>
+#include <mutex>
+#include <vector>
+#include <thread>
+
+constexpr unsigned N = 16;
+std::atomic<unsigned> done_count;
+
+struct Pixels
+{
+    Pixels(unsigned w, unsigned h)
+        : width{w},
+          height{h},
+          data{new float[width * height * 5]()},      // RGBA + sample count
+          pixels{new sf::Uint8[width * height * 4]()} // RGBA
+    {
+    }
+
+    ~Pixels()
+    {
+        delete[] data;
+        delete[] pixels;
+    }
+
+    sf::Uint8 *get_pixels(int WIDTH, int HEIGHT)
+    {
+        // convert accumulated pixels values so we can display them
+        for (int i = 0; i < HEIGHT; i++)
+            for (int j = 0; j < WIDTH; j++)
+            {
+                const unsigned data_pos = (i * width + j) * 5;
+                const unsigned pix_pos = ((HEIGHT - i - 1) * width + j) << 2;
+                const float ns = data[data_pos + 4]; // number of accumulated samples
+                pixels[pix_pos + 0] =
+                    sf::Uint8(255.99f * (sqrtf(data[data_pos + 0] / ns)));
+                pixels[pix_pos + 1] =
+                    sf::Uint8(255.99f * (sqrtf(data[data_pos + 1] / ns)));
+                pixels[pix_pos + 2] =
+                    sf::Uint8(255.99f * (sqrtf(data[data_pos + 2] / ns)));
+                pixels[pix_pos + 3] = 255u;
+            }
+
+        return pixels;
+    }
+
+    inline void accumulate(unsigned x, unsigned y, float r, float g, float b)
+    {
+        const unsigned pos = (y * width + x) * 5;
+        data[pos + 0] += r;
+        data[pos + 1] += g;
+        data[pos + 2] += b;
+        data[pos + 3] += 255.f; // opaque
+        data[pos + 4] += 1.f;   // number of samples
+    }
+
+    inline void accumulate(unsigned x, unsigned y, const color col)
+    {
+        accumulate(x, y, col.x(), col.y(), col.z());
+    }
+
+    unsigned width;
+    unsigned height;
+    float *data; // RGBA + sample count
+
+private:
+    // use get_pixels()
+    sf::Uint8 *pixels; // RGBA
+};
+
+
+
+
+struct Task
+{
+public:
+    Task(int _width, int _height, int _samplesPerPixel, int _maxDepth, const hittable_list &world, Pixels pixel) 
+    : my_id{id++}, WIDTH{_width}, HEIGHT{_height}, MAX_DEPTH{_maxDepth}, N_SAMPLES{_samplesPerPixel}, WORLD{world}, PIXELS{pixel}
+    {
+        W_CNT = (WIDTH + N - 1) / N;
+        H_CNT = (HEIGHT + N - 1) / N;
+    }
+
+    Task(int x, int y) : sx{x}, sy{y}, my_id{id++}, PIXELS(0, 0) {}
+
+    void move_in_pattern(int &rx, int &ry)
+    {
+        // snake pattern implementation
+        static int x = -1, y = H_CNT - 1;
+        static int dir = 0;
+
+        x = dir ? x - 1 : x + 1;
+        if (x == W_CNT || x == -1)
+        {
+            x = y & 1 ? W_CNT - 1 : 0;
+            y--;
+            dir = !dir;
+        }
+        rx = x;
+        ry = y;
+    }
+
+    bool get_next_task()
+    {
+        bool taken[H_CNT][W_CNT] = {};
+        static std::mutex m;
+
+        std::lock_guard<std::mutex> guard{m};
+
+        bool found = false;
+        int x, y;
+        while (!found)
+        {
+            move_in_pattern(x, y);
+            if (x < 0 || x > W_CNT || y < 0 || y > H_CNT)
+                break;
+
+            if (!taken[y][x])
+            {
+                sx = x * N;
+                sy = y * N;
+                taken[y][x] = true;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+
+    void operator()(camera &cam)
+    {
+        bool done = false;
+        do
+        {
+            if (!get_next_task())
+            {
+                done = true;
+                continue;
+            }
+
+            for (unsigned s = 0; s < N_SAMPLES; s++){
+                for (unsigned y = sy; y < sy + N; y++)
+                {
+                    color pixel_color(0, 0, 0);
+                    for (unsigned x = sx; x < sx + N; x++)
+                    {
+                        if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT)
+                            continue;
+
+                        const float u = float(x + drand48()) / float(WIDTH);
+                        const float v = float(y + drand48()) / float(HEIGHT);
+                        ray r = cam.get_ray(u, v);
+                        // const vec3 col = color(r, world, 0);
+                        pixel_color += cam.ray_color(r, MAX_DEPTH, WORLD);
+
+                        // PIXELS.accumulate(x, y, pixel_color);
+                        PIXELS.accumulate(x, y, pixel_color);
+                    }
+                    write_color(std::cout, pixel_color, N_SAMPLES);
+                }
+            }
+        } while (!done);
+
+        done_count++;
+
+        std::cout << "Thread " << my_id << " is done!" << std::endl;
+    }
+
+    int sx = -1, sy = -1;
+    int my_id;
+    static int id;
+    int N_SAMPLES;
+    int W_CNT;
+    int H_CNT;
+    int WIDTH;
+    int HEIGHT;
+    int MAX_DEPTH;
+    const hittable_list WORLD;
+    Pixels PIXELS;
+};
+
 
 int main()
 {
@@ -135,7 +316,7 @@ int main()
     sf::RectangleShape inputBox_LookFromX(sf::Vector2f(50, 50));
     inputBox_LookFromX.setFillColor(sf::Color::White);
     inputBox_LookFromX.setPosition(500, 100);
-    
+
     // Create a text object to represent the input look from x
     sf::Text inputText_LookFromX;
     inputText_LookFromX.setFont(font);
@@ -147,7 +328,7 @@ int main()
     sf::RectangleShape inputBox_LookFromY(sf::Vector2f(50, 50));
     inputBox_LookFromY.setFillColor(sf::Color::White);
     inputBox_LookFromY.setPosition(560, 100);
-    
+
     // Create a text object to represent the input look from y
     sf::Text inputText_LookFromY;
     inputText_LookFromY.setFont(font);
@@ -159,7 +340,7 @@ int main()
     sf::RectangleShape inputBox_LookFromZ(sf::Vector2f(50, 50));
     inputBox_LookFromZ.setFillColor(sf::Color::White);
     inputBox_LookFromZ.setPosition(620, 100);
-    
+
     // Create a text object to represent the input look from z
     sf::Text inputText_LookFromZ;
     inputText_LookFromZ.setFont(font);
@@ -202,7 +383,7 @@ int main()
     sf::RectangleShape inputBox_LookAtZ(sf::Vector2f(50, 50));
     inputBox_LookAtZ.setFillColor(sf::Color::White);
     inputBox_LookAtZ.setPosition(620, 200);
-    
+
     // Create a text object to represent the input look at z
     sf::Text inputText_LookAtZ;
     inputText_LookAtZ.setFont(font);
@@ -261,13 +442,13 @@ int main()
                     // Check if the mouse click is within the bounds of the input boxes
                     if (inputBox_Width.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         selectedInput = SelectedInput::Width;
-                    
+
                     else if (inputBox_Height.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         selectedInput = SelectedInput::Height;
-                    
+
                     else if (inputBox_SamplesPerPixel.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         selectedInput = SelectedInput::SamplesPerPixel;
-                    
+
                     else if (inputBox_MaxDepth.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         selectedInput = SelectedInput::MaxDepth;
 
@@ -279,7 +460,7 @@ int main()
 
                     else if (inputBox_LookFromZ.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         selectedInput = SelectedInput::LookFromZ;
-                    
+
                     else if (inputBox_LookAtX.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         selectedInput = SelectedInput::LookAtX;
 
@@ -396,7 +577,8 @@ int main()
     camera cam;
 
     cam.image_width = std::stoi(width);
-    cam.image_height = std::stoi(height); 
+    cam.image_height = std::stoi(height);
+    samplesPerPixel = std::stoi(samplesPerPixel);
     cam.samples_per_pixel = std::stoi(samplesPerPixel);
     cam.max_depth = std::stoi(maxDepth);
 
@@ -410,4 +592,66 @@ int main()
     cam.focus_dist = 10.0;
 
     cam.render(world);
+
+    Pixels pixels{cam.image_width, cam.image_height};
+
+    sf::RenderWindow window2(sf::VideoMode(cam.image_width, cam.image_height), "Ray Tracing rules!",
+                            sf::Style::Titlebar | sf::Style::Close);
+    sf::Texture tex;
+    sf::Sprite sprite;
+
+    if (!tex.create(cam.image_width, cam.image_height))
+    {
+        std::cerr << "Couldn't create texture!" << std::endl;
+        return 1;
+    }
+
+    tex.setSmooth(false);
+
+    sprite.setTexture(tex);
+
+    const unsigned int n_threads = std::thread::hardware_concurrency();
+    std::cout << "Detected " << n_threads << " concurrent threads." << std::endl;
+    std::vector<std::thread> threads{n_threads};
+
+    Timer timer;
+
+    for (auto &t : threads)
+        t = std::thread{Task{cam.image_width, cam.image_height, cam.samples_per_pixel, cam.max_depth, world, pixels}};
+
+    bool finished_rendering = false;
+
+    while (window2.isOpen())
+    {
+        sf::Event event;
+        while (window2.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window2.close();
+        }
+
+        tex.update(pixels.get_pixels(cam.image_width, cam.image_height));
+
+        window2.clear();
+        window2.draw(sprite);
+        window2.display();
+
+        if (!finished_rendering && done_count == n_threads)
+        {
+            std::cout << "Finished rendering in " << timer.get_millis() << "ms or "
+                      << timer.get_seconds() << "s." << std::endl;
+            finished_rendering = true;
+        }
+
+        sf::sleep(sf::milliseconds(1000));
+    }
+
+    std::cout << "Waiting for all the threads to join." << std::endl;
+    for (auto &t : threads)
+        t.join();
+
+    tex.copyToImage().saveToFile("out.png");
+    std::cout << "Saved image to out.png" << std::endl;
+
+    return 0;
 }
