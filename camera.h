@@ -132,7 +132,7 @@ class camera {
     color ray_color(const ray& r, int depth, const hittable& world) const {
         hit_record rec;
 
-        // If we've exceeded the ray bounce limit, no more light is gathered.
+        // If we've exceeded the ray bounce limit, no more light is  gathered.
         if (depth <= 0)
             return color(0,0,0);
 

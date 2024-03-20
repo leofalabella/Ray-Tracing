@@ -134,12 +134,69 @@ void simple_light() {
     cam.render(world);
 }
 
+void beautiful_light(int samples_per_pixel) {
+    hittable_list boxes1;
+    auto ground = make_shared<lambertian>(color(0.3, 0.7, 0.7));
+    auto white = make_shared<lambertian>(color(0.73, 0.73, 0.73));
+
+    int boxes_per_side = 20;
+    for (int i = 0; i < boxes_per_side; i++) {
+        for (int j = 0; j < boxes_per_side; j++) {
+            auto w = 100.0;
+            auto x0 = -1000.0 + i*w;
+            auto z0 = -1000.0 + j*w;
+            auto y0 = 0.0;
+            auto x1 = x0 + w;
+            auto y1 = random_double(1,101);
+            auto z1 = z0 + w;
+
+            boxes1.add(box(point3(x0,y0,z0), point3(x1,y1,z1), ground));
+        }
+    }
+    
+    hittable_list world;
+
+    world.add(make_shared<sphere>(point3(0,-1000, 0), 1000, make_shared<lambertian>(color(0.5, 0.5, 0.5))));
+    world.add(make_shared<sphere>(point3(0,2, 0), 2, make_shared<lambertian>(color(0.5, 0.5, 0.5))));
+
+    auto difflight = make_shared<diffuse_light>(color(4,0.8,4.8));
+    world.add(make_shared<quad>(point3(0,1,-2), vec3(2,0,0), vec3(0,2,0), difflight));
+
+    shared_ptr<hittable> box1 = box(point3(0,0,0), point3(165,330,165), white);
+    box1 = make_shared<rotate_y>(box1, 15);
+    //box1 = make_shared<translate>(box1, vec3(265,0,295));
+    world.add(box1);
+
+    shared_ptr<hittable> box2 = box(point3(0,0,0), point3(165,165,165), white);
+    box2 = make_shared<rotate_y>(box2, -18);
+    // box2 = make_shared<translate>(box2, vec3(130,0,65));
+    world.add(box2);
+
+    camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0; 
+    cam.image_width       = 400;
+    cam.samples_per_pixel = samples_per_pixel;
+    cam.max_depth         = 50;
+    cam.background        = color(0,0,0);
+
+    cam.vfov     = 20;
+    cam.lookfrom = point3(26,3,6);
+    cam.lookat   = point3(0,2,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world);
+}
+
 int main() {
     switch (3)
     {
     case 1: random_spheres(); break;
     case 2: quads(); break;
     case 3: simple_light(); break;
+    case 4: beautiful_light(100); break;
     }
 }
 
