@@ -8,10 +8,10 @@
 #include "material.h"
 
 #include <iostream>
+#include <omp.h>
 
 class camera {
   public:
-    double aspect_ratio = 1.0;  // Ratio of image width over height
     int    image_width  = 100;  // Rendered image width in pixel count
     int    image_height = 100;  // Rendered image height in pixel count
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
@@ -25,25 +25,31 @@ class camera {
     double defocus_angle = 0;  // Variation angle of rays through each pixel
     double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
 
-    friend class Task;
-
-    void render(const hittable& world) {
+    void render(const hittable& world, Pixels& pixels, sf::RenderWindow& window, sf::Sprite& sprite, sf::Texture& tex) {
         initialize();
 
         std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+        
         for (int j = 0; j < image_height; ++j) {
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; ++i) {
                 color pixel_color(0,0,0);
+                color pixel_color_sum = color(0,0,0);
+                //#pragma omp parallel for
                 for (int sample = 0; sample < samples_per_pixel; ++sample) {
                     ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, max_depth, world);
+                    pixel_color = ray_color(r, max_depth, world);
+                    pixels.accumulate(i, j, pixel_color);
+                    pixel_color_sum += pixel_color; 
                 }
-                write_color(std::cout, pixel_color, samples_per_pixel);
+                write_color(std::cout, pixel_color_sum, samples_per_pixel);
             }
+            tex.update(pixels.get_pixels(image_width, image_height));
+            window.clear();
+            window.draw(sprite);
+            window.display();
         }
-
         std::clog << "\rDone.                 \n";
     }
 
