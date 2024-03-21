@@ -42,7 +42,6 @@ class camera {
                 for (int i = 0; i < image_width; ++i) {
                     color pixel_color(0,0,0);
                     color pixel_color_sum = color(0,0,0);
-                    //#pragma omp parallel for
                     for (int sample = 0; sample < samples_per_pixel; ++sample) {
                         ray r = get_ray(i, j);
                         pixel_color = ray_color(r, max_depth, world);
@@ -68,7 +67,6 @@ class camera {
         vec3 u, v, w; // Camera coordinate system
         vec3   defocus_disk_u;  // Defocus disk horizontal radius
         vec3   defocus_disk_v;  // Defocus disk vertical radius
-
 
         void initialize(){
             center = lookfrom;

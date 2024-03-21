@@ -90,7 +90,7 @@ void random_spheres() {
 
     camera cam;
 
-    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_height    = 200;
     cam.image_width       = 1200;
     cam.samples_per_pixel = 10;
     cam.max_depth         = 50;
@@ -114,11 +114,11 @@ void simple_light() {
     world.add(make_shared<sphere>(point3(0,2, 0), 2, make_shared<lambertian>(color(0.5, 0.5, 0.5))));
 
     auto difflight = make_shared<diffuse_light>(color(4,4,4));
-    world.add(make_shared<quad>(point3(0,1,-2), vec3(2,0,0), vec3(0,2,0), difflight));
+    world.add(make_shared<quad>(point3(6,1,-2), vec3(2,0,0), vec3(0,2,0), difflight));
 
     camera cam;
 
-    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_height    = 200;
     cam.image_width       = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
@@ -174,7 +174,7 @@ void beautiful_light(int samples_per_pixel) {
 
     camera cam;
 
-    cam.aspect_ratio      = 16.0 / 9.0; 
+    cam.image_height    = 200; 
     cam.image_width       = 400;
     cam.samples_per_pixel = samples_per_pixel;
     cam.max_depth         = 50;
