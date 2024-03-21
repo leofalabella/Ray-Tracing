@@ -4,19 +4,27 @@
         "atomic": "cpp",
         "bit": "cpp",
         "*.tcc": "cpp",
+<<<<<<< HEAD
         "bitset": "cpp",
         "cctype": "cpp",
         "chrono": "cpp",
+=======
+        "cctype": "cpp",
+>>>>>>> mateus-leo/leo
         "clocale": "cpp",
         "cmath": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
+<<<<<<< HEAD
         "condition_variable": "cpp",
         "cstdarg": "cpp",
+=======
+>>>>>>> mateus-leo/leo
         "cstddef": "cpp",
         "cstdint": "cpp",
         "cstdio": "cpp",
         "cstdlib": "cpp",
+<<<<<<< HEAD
         "cstring": "cpp",
         "ctime": "cpp",
         "cwchar": "cpp",
@@ -24,6 +32,11 @@
         "deque": "cpp",
         "map": "cpp",
         "set": "cpp",
+=======
+        "cwchar": "cpp",
+        "cwctype": "cpp",
+        "deque": "cpp",
+>>>>>>> mateus-leo/leo
         "string": "cpp",
         "unordered_map": "cpp",
         "vector": "cpp",
@@ -36,7 +49,10 @@
         "numeric": "cpp",
         "optional": "cpp",
         "random": "cpp",
+<<<<<<< HEAD
         "ratio": "cpp",
+=======
+>>>>>>> mateus-leo/leo
         "string_view": "cpp",
         "system_error": "cpp",
         "tuple": "cpp",
@@ -47,6 +63,7 @@
         "iostream": "cpp",
         "istream": "cpp",
         "limits": "cpp",
+<<<<<<< HEAD
         "mutex": "cpp",
         "new": "cpp",
         "numbers": "cpp",
@@ -61,5 +78,13 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "__nullptr": "cpp"
+=======
+        "new": "cpp",
+        "numbers": "cpp",
+        "ostream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "typeinfo": "cpp"
+>>>>>>> mateus-leo/leo
     }
 }
