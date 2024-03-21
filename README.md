@@ -29,7 +29,7 @@ To clean the compiled files and generated images, you can run:
 #### Running the Executable
 After compiling, you can run the executable using:
 
-`./out`
+`./out > out.ppm`
 
 This will generate two image files: `out.ppm` and `out.png` in the `images` directory.
 
